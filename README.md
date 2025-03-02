@@ -46,8 +46,8 @@ This project implements various search and MDP algorithms for maze solving, incl
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/cs7is2-assignment1.git
-cd cs7is2-assignment1
+git clone git@github.com:prkaaviya/TCD-Artificial-Intelligence-A1.git
+cd TCD-Artificial-Intelligence-A1
 ```
 
 2. Install dependencies:
