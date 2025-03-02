@@ -20,6 +20,8 @@ def main():
     """
     The main entrypoint for running the maze solvers.
     """
+    print("\n---BEGIN---\n")
+
     os.makedirs(VISUALS_DIR, exist_ok=True)
     os.makedirs(METRICS_DIR, exist_ok=True)
 
@@ -31,6 +33,8 @@ def main():
                         help="Algorithm to use for solving the maze")
 
     args = parser.parse_args()
+    
+    
 
     maze_path = f"{TEXT_DIR}/{args.title}.txt"
     print(f"Loading maze from {maze_path}...")
