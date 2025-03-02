@@ -16,6 +16,9 @@ VISUALS_DIR = os.path.join(RESULTS_DIR, 'visuals')
 METRICS_DIR = os.path.join(RESULTS_DIR, 'metrics')
 
 def main():
+    """
+    The main entrypoint for running the maze solvers.
+    """
     os.makedirs(VISUALS_DIR, exist_ok=True)
     os.makedirs(METRICS_DIR, exist_ok=True)
 
@@ -43,8 +46,36 @@ def main():
     tracemalloc.stop()
     solver.execution_time = end_time - start_time
 
-    # Handle results
-    # (rest of your code that handles visualization and metrics)
+    if solution:
+        print("Solution found!")
+        print("Solution path:", solution)
+        solver.visualize_solution(solution, f'{VISUALS_DIR}/{args.title}_solution.png')
+    else:
+        print("No solution found.")
+
+    memory_info = {
+        'current_memory': current,
+        'peak_memory': peak,
+        'current_memory_mb': current / (1024 * 1024),
+        'peak_memory_mb': peak / (1024 * 1024)
+    }
+
+    maze_info = {
+        'maze_title': args.title,
+        'maze_algorithm': 'DFS',
+        'maze_height': solver.height,
+        'maze_width': solver.width
+    }
+
+    print(f"\nAll Metrics for the {args.title} Solution\n---")
+    metrics_data = maze_info | solver.get_performance_metrics() | memory_info
+
+    for key, value in metrics_data.items():
+        print(f"{key}: {value}")
+
+    save_metrics(metrics_data, f'{METRICS_DIR}/{args.title}_metrics.csv')
+
+    print("\n---DONE---\n")
 
 if __name__ == "__main__":
     main()
