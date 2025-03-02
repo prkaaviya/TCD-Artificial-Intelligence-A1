@@ -54,7 +54,8 @@ def main():
     if solution:
         print("Solution found!")
         print("Solution path:", solution)
-        solver.visualize_solution(solution, f'{VISUALS_DIR}/{args.title}_solution.png')
+        solver.visualize_solution(solution,
+                                    f'{VISUALS_DIR}/{args.title}_{args.algorithm}_solution.png')
     else:
         print("No solution found.")
 
@@ -78,7 +79,7 @@ def main():
     for key, value in metrics_data.items():
         print(f"{key}: {value}")
 
-    save_metrics(metrics_data, f'{METRICS_DIR}/{args.title}_metrics.csv')
+    save_metrics(metrics_data, f'{METRICS_DIR}/{args.title}_{args.algorithm}_metrics.csv')
 
     print("\n---DONE---\n")
 
