@@ -12,6 +12,7 @@ from solvers.utils import load_maze_from_file, save_metrics
 
 MAZE_DIR = 'mazes'
 RESULTS_DIR = 'results'
+TEXT_DIR = os.path.join(MAZE_DIR, 'text')
 VISUALS_DIR = os.path.join(RESULTS_DIR, 'visuals')
 METRICS_DIR = os.path.join(RESULTS_DIR, 'metrics')
 
@@ -31,7 +32,7 @@ def main():
 
     args = parser.parse_args()
 
-    maze_path = f"{MAZE_DIR}/{args.title}.txt"
+    maze_path = f"{TEXT_DIR}/{args.title}.txt"
     print(f"Loading maze from {maze_path}...")
     maze = load_maze_from_file(maze_path)
 
