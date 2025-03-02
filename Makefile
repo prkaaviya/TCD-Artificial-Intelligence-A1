@@ -1,6 +1,7 @@
 # Makefile for AI Assignment 1
 
-PYTHON = python
+CONDA_ENV = tf
+CONDA_RUN = conda run -n $(CONDA_ENV)
 
 MAZE_DIR = mazes/text
 RESULTS_DIR = results
@@ -18,27 +19,27 @@ dirs:
 # Generate a single maze with specified size
 .PHONY: generate_maze
 generate_maze: dirs
-	$(PYTHON) gen_maze.py --width $(SIZE) --height $(SIZE) --text $(MAZE_NAME) --image $(MAZE_NAME)
+	$(CONDA_RUN) python gen_maze.py --width $(SIZE) --height $(SIZE) --text $(MAZE_NAME) --image $(MAZE_NAME)
 
 # Generate a series of mazes with predefined sizes
 .PHONY: generate_mazes
 generate_mazes: dirs
 	@for size in $(MAZE_SIZES); do \
 		echo "Generating maze with size $${size}x$${size}"; \
-		$(PYTHON) gen_maze.py --width $$size --height $$size --text maze_$$size --image maze_$$size; \
+		$(CONDA_RUN) python  gen_maze.py --width $$size --height $$size --text maze_$$size --image maze_$$size; \
 	done
 
 # Solve a single maze with a specific algorithm
 .PHONY: solve
 solve: dirs
-	$(PYTHON) run.py --title $(MAZE) --algorithm $(ALG)
+	$(CONDA_RUN) python run.py --title $(MAZE) --algorithm $(ALG)
 
 # Solve all mazes with a specific algorithm
 .PHONY: solve_all_mazes
 solve_all_mazes: dirs
 	@for maze in $(shell ls $(MAZE_DIR) | grep -o "maze[0-9]*" | sort -u); do \
 		echo "Solving $$maze with $(ALG)"; \
-		$(PYTHON) run.py --title $$maze --algorithm $(ALG); \
+		$(CONDA_RUN) python run.py --title $$maze --algorithm $(ALG); \
 	done
 
 # Run all solvers on all mazes
@@ -47,7 +48,7 @@ benchmark: dirs
 	@for maze in $(shell ls $(MAZE_DIR) | grep -o "maze[0-9]*" | sort -u); do \
 		for alg in $(ALGORITHMS); do \
 			echo "Benchmarking $$maze with $$alg"; \
-			$(PYTHON) run.py --title $$maze --algorithm $$alg; \
+			$(CONDA_RUN) python run.py --title $$maze --algorithm $$alg; \
 		done; \
 	done
 
