@@ -8,6 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
+MAZE_DIR = 'mazes'
+VISUALS_DIR = os.path.join(MAZE_DIR, 'visuals')
+TEXT_DIR = os.path.join(MAZE_DIR, 'text')
+
 class MazeGenerator:
     def __init__(self, width, height):
         """
@@ -45,7 +49,8 @@ class MazeGenerator:
 
             # find unvisited neighbors
             neighbors = []
-            for dy, dx in [(-2, 0), (2, 0), (0, -2), (0, 2)]:  # follow the priority order - down, up, left, right
+            # follow the priority order - down, up, left, right
+            for dy, dx in [(-2, 0), (2, 0), (0, -2), (0, 2)]:
                 new_y, new_x = current_y + dy, current_x + dx
                 # check whether neighbor is within inner bounds and not visited
                 if (1 <= new_y < self.height-1 and 
@@ -97,17 +102,17 @@ class MazeGenerator:
         plt.axis('equal')
         plt.axis('off')
 
-        os.makedirs('mazes', exist_ok=True)
+        os.makedirs(VISUALS_DIR, exist_ok=True)
 
-        plt.savefig(f'mazes/{output_img}.png', bbox_inches='tight', dpi=300)
+        plt.savefig(f'{VISUALS_DIR}/{output_img}.png', bbox_inches='tight', dpi=300)
         plt.close()
 
     def save_maze_to_file(self, output_file):
         """
         Save the maze array to a text file.
         """
-        os.makedirs('mazes', exist_ok=True)
-        np.savetxt(f'mazes/{output_file}.txt', self.maze, fmt='%s', delimiter=',')
+        os.makedirs(TEXT_DIR, exist_ok=True)
+        np.savetxt(f'{TEXT_DIR}/{output_file}.txt', self.maze, fmt='%s', delimiter=',')
 
     def get_maze(self):
         """
