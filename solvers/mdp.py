@@ -21,6 +21,8 @@ class MDPValueIterationSolver(MazeSolverBase):
         self.title = title
         self.height, self.width = maze.shape
 
+        self.nodes_explored = 0
+        self.nodes_available = 0
         self.execution_time = None
 
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
@@ -36,22 +38,22 @@ class MDPValueIterationSolver(MazeSolverBase):
 
         self.solution_path = []
 
-    def is_wall(self, row, col):
+    def is_wall(self, x, y):
         """Check if a cell is a wall."""
         # check if coordinates are within bounds
-        if row < 0 or row >= self.height or col < 0 or col >= self.width:
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
             return True
         # check if the cell is a wall (represented by '#')
-        return self.maze[row, col] == '#'
+        return self.maze[x, y] == '#'
 
     def get_states(self):
         """Get all valid states (positions) in the maze."""
         states = []
-        for row in range(self.height):
-            for col in range(self.width):
+        for y in range(self.height):
+            for x in range(self.width):
                 # include only non-wall cells as valid states
-                if not self.is_wall(row, col):
-                    states.append((row, col))
+                if not self.is_wall(x, y):
+                    states.append((x, y))
         return states
 
     def get_actions(self):
@@ -91,9 +93,9 @@ class MDPValueIterationSolver(MazeSolverBase):
         For a deterministic environment, this is 1 if next_state is the result of
         applying action to state, and 0 otherwise.
         """
-        row, col = state
-        d_row, d_col = action
-        expected_next_state = (row + d_row, col + d_col)
+        x, y = state
+        dx, dy = action
+        expected_next_state = (x + dx, y + dy)
 
         # if next_state is the expected result of the action, probability is 1
         if expected_next_state == next_state:
@@ -132,6 +134,7 @@ class MDPValueIterationSolver(MazeSolverBase):
             # update values for all states
             for state in states:
                 self.states_evaluated += 1
+                self.nodes_explored += 1
 
                 # skip updating value if goal state
                 if state == self.goal:
@@ -209,9 +212,9 @@ class MDPValueIterationSolver(MazeSolverBase):
             if action is None:
                 break
 
-            row, col = current
-            d_row, d_col = action
-            next_state = (row + d_row, col + d_col)
+            x, y = current
+            dx, dy = action
+            next_state = (x + dx, y + dy)
 
             if self.is_wall(*next_state):
                 break
@@ -273,6 +276,8 @@ class MDPValueIterationSolver(MazeSolverBase):
         return {
             'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
+            'nodes_explored': self.nodes_explored,
+            'nodes_available': self.nodes_available,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
             'is_solution_found': bool(self.solution_path)
@@ -299,6 +304,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         self.title = title
         self.height, self.width = maze.shape
 
+        self.nodes_explored = 0
+        self.nodes_available = 0
         self.execution_time = None
 
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
@@ -316,22 +323,22 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
         self.solution_path = []
 
-    def is_wall(self, row, col):
+    def is_wall(self, x, y):
         """Check if a cell is a wall."""
         # check if coordinates are within bounds
-        if row < 0 or row >= self.height or col < 0 or col >= self.width:
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
             return True
         # check if the cell is a wall (typically represented by '#')
-        return self.maze[row, col] == '#'
+        return self.maze[x, y] == '#'
 
     def get_states(self):
         """Get all valid states (positions) in the maze."""
         states = []
-        for row in range(self.height):
-            for col in range(self.width):
+        for y in range(self.height):
+            for x in range(self.width):
                 # include only non-wall cells as valid states
-                if not self.is_wall(row, col):
-                    states.append((row, col))
+                if not self.is_wall(x, y):
+                    states.append((x, y))
         return states
 
     def get_actions(self):
@@ -371,9 +378,9 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         For a deterministic environment, this is 1 if next_state is the result of
         applying action to state, and 0 otherwise.
         """
-        row, col = state
-        d_row, d_col = action
-        expected_next_state = (row + d_row, col + d_col)
+        x, y = state
+        dx, dy = action
+        expected_next_state = (x + dx, y + dy)
 
         # if next_state is the expected result of the action, probability is 1
         if expected_next_state == next_state:
@@ -407,7 +414,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             for state in states:
                 self.states_evaluated += 1
                 # skip evaluating if reached goal state
-                if state == self.maze.goal:
+                if state == self.goal:
                     continue
 
                 action = policy[state]
@@ -445,7 +452,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         is_stable = True
 
         for state in states:
-            if state == self.maze.goal:
+            if state == self.goal:
                 policy[state] = None
                 continue
 
@@ -495,9 +502,9 @@ class MDPPolicyIterationSolver(MazeSolverBase):
                 # choose a random action that doesn't lead to a wall
                 valid_actions = []
                 for action in actions:
-                    row, col = state
-                    d_row, d_col = action
-                    next_state = (row + d_row, col + d_col)
+                    x, y = state
+                    dx, dy = action
+                    next_state = (x + dx, y + dy)
                     if not self.is_wall(*next_state):
                         valid_actions.append(action)
                 if valid_actions:
@@ -512,6 +519,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
         for i in range(self.max_iterations):
             self.iterations += 1
+            self.nodes_explored += len(states)
 
             # one, do Policy Evaluation
             self.values = self.policy_evaluation(self.policy, states, actions)
@@ -536,8 +544,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         Returns:
             path: List of positions from start to goal
         """
-        path = [self.maze.start]
-        current = self.maze.start
+        path = [self.start]
+        current = self.start
 
         max_path_length = self.width * self.height
 
@@ -547,9 +555,9 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             if action is None:
                 break
 
-            row, col = current
-            d_row, d_col = action
-            next_state = (row + d_row, col + d_col)
+            x, y = current
+            dx, dy = action
+            next_state = (x + dx, y + dy)
 
             # check if the next state is valid
             if self.is_wall(*next_state):
@@ -613,6 +621,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         return {
             'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
+            'nodes_explored': self.nodes_explored,
+            'nodes_available': self.nodes_available,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
