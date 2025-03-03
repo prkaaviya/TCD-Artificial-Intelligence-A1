@@ -21,8 +21,6 @@ class MDPValueIterationSolver(MazeSolverBase):
         self.title = title
         self.height, self.width = maze.shape
 
-        self.nodes_explored = 0
-        self.nodes_available = 0
         self.execution_time = None
 
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
@@ -44,7 +42,7 @@ class MDPValueIterationSolver(MazeSolverBase):
         if x < 0 or x >= self.width or y < 0 or y >= self.height:
             return True
         # check if the cell is a wall (represented by '#')
-        return self.maze[x, y] == '#'
+        return self.maze[y, x] == '#'
 
     def get_states(self):
         """Get all valid states (positions) in the maze."""
@@ -134,7 +132,6 @@ class MDPValueIterationSolver(MazeSolverBase):
             # update values for all states
             for state in states:
                 self.states_evaluated += 1
-                self.nodes_explored += 1
 
                 # skip updating value if goal state
                 if state == self.goal:
@@ -276,8 +273,6 @@ class MDPValueIterationSolver(MazeSolverBase):
         return {
             'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
-            'nodes_explored': self.nodes_explored,
-            'nodes_available': self.nodes_available,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
             'is_solution_found': bool(self.solution_path)
@@ -304,8 +299,6 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         self.title = title
         self.height, self.width = maze.shape
 
-        self.nodes_explored = 0
-        self.nodes_available = 0
         self.execution_time = None
 
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
@@ -329,7 +322,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         if x < 0 or x >= self.width or y < 0 or y >= self.height:
             return True
         # check if the cell is a wall (typically represented by '#')
-        return self.maze[x, y] == '#'
+        return self.maze[y, x] == '#'
 
     def get_states(self):
         """Get all valid states (positions) in the maze."""
@@ -519,7 +512,6 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
         for i in range(self.max_iterations):
             self.iterations += 1
-            self.nodes_explored += len(states)
 
             # one, do Policy Evaluation
             self.values = self.policy_evaluation(self.policy, states, actions)
@@ -621,8 +613,6 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         return {
             'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
-            'nodes_explored': self.nodes_explored,
-            'nodes_available': self.nodes_available,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
