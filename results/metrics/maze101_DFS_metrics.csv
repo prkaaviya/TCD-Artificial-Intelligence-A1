@@ -1,2 +1,2 @@
 maze_title,maze_algorithm,maze_height,maze_width,path_length,nodes_explored,nodes_available,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
-maze101,DFS,101,101,1865,4701,4999,0.05490422248840332,True,227345,567347,0.2168130874633789,0.5410642623901367
+maze101,DFS,101,101,1865,4701,4999,0.05331087112426758,True,227665,567667,0.2171182632446289,0.5413694381713867
