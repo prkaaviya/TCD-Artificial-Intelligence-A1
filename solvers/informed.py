@@ -69,7 +69,7 @@ class AStarSolver(MazeSolverBase):
 
         Returns:
         list: Solution path if found, empty list otherwise.
-        """        
+        """    
         self.nodes_explored = 0
         self.visited = np.zeros_like(self.maze, dtype=bool)
         self.solution_path = []
