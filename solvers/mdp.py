@@ -20,8 +20,11 @@ class MDPValueIterationSolver(MazeSolverBase):
         self.maze = maze
         self.title = title
         self.height, self.width = maze.shape
-        self.start = self.find_start()
-        self.goal = self.find_goal()
+
+        self.execution_time = None
+
+        self.start = tuple(zip(*np.where(maze == 'S')))[0]
+        self.goal = tuple(zip(*np.where(maze == 'G')))[0]
 
         self.discount_factor = discount_factor
         self.theta = theta
@@ -30,23 +33,8 @@ class MDPValueIterationSolver(MazeSolverBase):
         self.policy = {}
         self.iterations = 0
         self.states_evaluated = 0
-        self.execution_time = 0
 
-    def find_start(self):
-        """Find the start position (S) in the maze."""
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.maze[i, j] == 'S':
-                    return (i, j)
-        raise ValueError("No start position found in maze")
-
-    def find_goal(self):
-        """Find the goal position (G) in the maze."""
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.maze[i, j] == 'G':
-                    return (i, j)
-        raise ValueError("No goal position found in maze")
+        self.solution_path = []
 
     def is_wall(self, row, col):
         """Check if a cell is a wall."""
@@ -177,7 +165,6 @@ class MDPValueIterationSolver(MazeSolverBase):
         self.policy = {}
         for state in states:
             if state == self.goal:
-                # No action needed at goal
                 self.policy[state] = None
                 continue
 
@@ -201,6 +188,7 @@ class MDPValueIterationSolver(MazeSolverBase):
             self.policy[state] = best_action
 
         path = self.extract_path()
+        self.solution_path = path
         return path
 
     def extract_path(self):
@@ -233,36 +221,47 @@ class MDPValueIterationSolver(MazeSolverBase):
 
         return path
 
-    def visualize_solution(self, path, filename):
+    def visualize_solution(self, solution_path, output_file=None):
         """
         Visualize the maze solution.
         
         Args:
-            path: List of positions forming the solution path
-            filename: The filename to save the visualization
+        solution_path (list): List of (x, y) coordinates forming the solution path.
+        output_file (str, optional): Path to save the visualization.
         """
-        solution_maze = np.copy(self.maze)
+        _, ax = plt.subplots(figsize=(8, 8))
 
-        for row, col in path:
-            if (row, col) != self.start and (row, col) != self.goal:
-                solution_maze[row, col] = 'P'  # 'P' for path
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.maze[i, j] == '#':  # wall
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='black'))
+                elif self.maze[i, j] == 'S':  # start
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='green'))
+                elif self.maze[i, j] == 'G':  # goal
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='red'))
+                else:  # path
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='white'))
 
-        print("Maze solution:")
-        for row in solution_maze:
-            print(' '.join(row))
+        # plot the solution path on top of the maze
+        if solution_path:
+            path_x = [x + 0.5 for x, _ in solution_path]
+            path_y = [self.height-1-y + 0.5 for _, y in solution_path]
+            plt.plot(path_x, path_y, color='blue', linewidth=2, marker='o',
+                    markersize=5, markerfacecolor='yellow')
 
-        plt.figure(figsize=(10, 10))
-        plt.imshow(solution_maze == '#', cmap='binary')
+        plt.title(f'{self.title} ({self.height}, {self.width}) Solution with MDP Value Iteration')
+        plt.axis('equal')
+        plt.axis('off')
 
-        if path:
-            path_array = np.array(path)
-            plt.plot(path_array[:, 1], path_array[:, 0], 'r-', linewidth=2)
-            plt.plot(self.start[1], self.start[0], 'go', markersize=10)
-            plt.plot(self.goal[1], self.goal[0], 'bo', markersize=10)
-
-        plt.title(f"MDP Value Iteration Solution for {self.title}")
-        plt.savefig(filename)
-        plt.close()
+        if output_file:
+            plt.savefig(output_file, bbox_inches='tight', dpi=300)
+            plt.close()
+        else:
+            plt.show()
 
     def get_performance_metrics(self):
         """
@@ -272,11 +271,11 @@ class MDPValueIterationSolver(MazeSolverBase):
             metrics: Dictionary of performance metrics
         """
         return {
+            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
             'states_evaluated': self.states_evaluated,
-            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'execution_time': self.execution_time,
-            'algorithm': 'MDP Value Iteration'
+            'is_solution_found': bool(self.solution_path)
         }
 
 class MDPPolicyIterationSolver(MazeSolverBase):
@@ -299,8 +298,11 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         self.maze = maze
         self.title = title
         self.height, self.width = maze.shape
-        self.start = self.find_start()
-        self.goal = self.find_goal()
+
+        self.execution_time = None
+
+        self.start = tuple(zip(*np.where(maze == 'S')))[0]
+        self.goal = tuple(zip(*np.where(maze == 'G')))[0]
 
         self.discount_factor = discount_factor
         self.theta = theta
@@ -311,23 +313,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         self.iterations = 0
         self.policy_changes = 0
         self.states_evaluated = 0
-        self.execution_time = 0
 
-    def find_start(self):
-        """Find the start position (S) in the maze."""
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.maze[i, j] == 'S':
-                    return (i, j)
-        raise ValueError("No start position found in maze")
-
-    def find_goal(self):
-        """Find the goal position (G) in the maze."""
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.maze[i, j] == 'G':
-                    return (i, j)
-        raise ValueError("No goal position found in maze")
+        self.solution_path = []
 
     def is_wall(self, row, col):
         """Check if a cell is a wall."""
@@ -539,6 +526,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
                 break
 
         path = self.extract_path()
+        self.solution_path = path
         return path
 
     def extract_path(self):
@@ -573,36 +561,47 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
         return path
 
-    def visualize_solution(self, path, filename):
+    def visualize_solution(self, solution_path, output_file=None):
         """
         Visualize the maze solution.
-
+        
         Args:
-            path: List of positions forming the solution path
-            filename: The filename to save the visualization
+        solution_path (list): List of (x, y) coordinates forming the solution path.
+        output_file (str, optional): Path to save the visualization.
         """
-        solution_maze = np.copy(self.maze)
+        _, ax = plt.subplots(figsize=(8, 8))
 
-        for row, col in path:
-            if (row, col) != self.start and (row, col) != self.goal:
-                solution_maze[row, col] = 'P'  # 'P' for path
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.maze[i, j] == '#':  # wall
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='black'))
+                elif self.maze[i, j] == 'S':  # start
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='green'))
+                elif self.maze[i, j] == 'G':  # goal
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='red'))
+                else:  # path
+                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
+                                        facecolor='white'))
 
-        print("Maze solution:")
-        for row in solution_maze:
-            print(' '.join(row))
+        # plot the solution path on top of the maze
+        if solution_path:
+            path_x = [x + 0.5 for x, _ in solution_path]
+            path_y = [self.height-1-y + 0.5 for _, y in solution_path]
+            plt.plot(path_x, path_y, color='blue', linewidth=2, marker='o',
+                    markersize=5, markerfacecolor='yellow')
 
-        plt.figure(figsize=(10, 10))
-        plt.imshow(solution_maze == '#', cmap='binary')
+        plt.title(f'{self.title} ({self.height}, {self.width}) Solution with MDP Policy Iteration')
+        plt.axis('equal')
+        plt.axis('off')
 
-        if path:
-            path_array = np.array(path)
-            plt.plot(path_array[:, 1], path_array[:, 0], 'r-', linewidth=2)
-            plt.plot(self.start[1], self.start[0], 'go', markersize=10)
-            plt.plot(self.goal[1], self.goal[0], 'bo', markersize=10)
-
-        plt.title(f"MDP Policy Iteration Solution for {self.title}")
-        plt.savefig(filename)
-        plt.close()
+        if output_file:
+            plt.savefig(output_file, bbox_inches='tight', dpi=300)
+            plt.close()
+        else:
+            plt.show()
 
     def get_performance_metrics(self):
         """
@@ -612,10 +611,10 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             metrics: Dictionary of performance metrics
         """
         return {
+            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'iterations': self.iterations,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,
-            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
             'execution_time': self.execution_time,
-            'algorithm': 'MDP Policy Iteration'
+            'is_solution_found': bool(self.solution_path)
         }
