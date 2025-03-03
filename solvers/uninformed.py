@@ -26,7 +26,6 @@ class DFSSolver(MazeSolverBase):
         self.nodes_available = 0
         self.execution_time = None
 
-        # find start and goal positions
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
         self.goal = tuple(zip(*np.where(maze == 'G')))[0]
 

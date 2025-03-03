@@ -33,8 +33,6 @@ def main():
                         help="Algorithm to use for solving the maze")
 
     args = parser.parse_args()
-    
-    
 
     maze_path = f"{TEXT_DIR}/{args.title}.txt"
     print(f"Loading maze from {maze_path}...")
@@ -68,7 +66,7 @@ def main():
 
     maze_info = {
         'maze_title': args.title,
-        'maze_algorithm': 'DFS',
+        'maze_algorithm': args.algorithm,
         'maze_height': solver.height,
         'maze_width': solver.width
     }
