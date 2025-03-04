@@ -82,6 +82,18 @@ class MDPValueIterationSolver(MazeSolverBase):
         if self.is_wall(*next_state):
             return -100
 
+        # calculate Manhattan distance to goal for getting gradient reward
+        goal_x, goal_y = self.goal
+        next_x, next_y = next_state
+        curr_x, curr_y = state
+
+        curr_dist = abs(curr_x - goal_x) + abs(curr_y - goal_y)
+        next_dist = abs(next_x - goal_x) + abs(next_y - goal_y)
+
+        # if the next state is closer to goal, give bonus
+        if next_dist < curr_dist:
+            return -0.5
+
         # set small penalty for each step to encourage shorter paths
         return -1
 
@@ -118,10 +130,11 @@ class MDPValueIterationSolver(MazeSolverBase):
         states = self.get_states()
         actions = self.get_actions()
 
-        # initialize value function
+        # Initialize value function with goal having high value
         self.values = {state: 0 for state in states}
+        self.values[self.goal] = 100  # Set goal value higher
 
-        # set properties for Value Iteration
+        # Set properties for Value Iteration
         self.iterations = 0
         self.states_evaluated = 0
 
@@ -129,17 +142,17 @@ class MDPValueIterationSolver(MazeSolverBase):
             self.iterations += 1
             delta = 0
 
-            # update values for all states
+            # Update values for all states
             for state in states:
                 self.states_evaluated += 1
 
-                # skip updating value if goal state
+                # Skip updating value if goal state
                 if state == self.goal:
                     continue
 
                 old_value = self.values[state]
 
-                # calculate new value using Bellman equation
+                # Calculate new value using Bellman equation
                 new_value = float('-inf')
 
                 for action in actions:
@@ -161,7 +174,7 @@ class MDPValueIterationSolver(MazeSolverBase):
                 print(f"Value Iteration converged after {i+1} iterations")
                 break
 
-        # extract policy from value function
+        # Extract policy from value function
         self.policy = {}
         for state in states:
             if state == self.goal:
@@ -200,6 +213,7 @@ class MDPValueIterationSolver(MazeSolverBase):
         """
         path = [self.start]
         current = self.start
+        visited = {self.start}  # Track visited states to prevent loops
 
         max_path_length = self.width * self.height
 
@@ -216,6 +230,12 @@ class MDPValueIterationSolver(MazeSolverBase):
             if self.is_wall(*next_state):
                 break
 
+            # Check for loops
+            if next_state in visited:
+                print(f"Warning: Loop detected in path at {next_state}")
+                break
+                
+            visited.add(next_state)
             path.append(next_state)
             current = next_state
 
@@ -270,20 +290,23 @@ class MDPValueIterationSolver(MazeSolverBase):
         Returns:
             metrics: Dictionary of performance metrics
         """
+        path = self.extract_path()
+        is_solution_found = len(path) > 1 and path[-1] == self.goal
+
         return {
-            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
+            'path_length': len(path) - 1 if is_solution_found else 0,
             'iterations': self.iterations,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
-            'is_solution_found': bool(self.solution_path)
+            'is_solution_found': is_solution_found
         }
 
 class MDPPolicyIterationSolver(MazeSolverBase):
     """
     Maze solver using MDP Policy Iteration solver.
     """
-    def __init__(self, title, maze, discount_factor=0.9,\
-        theta=0.001, max_iterations=100, policy_eval_iterations=10):
+    def __init__(self, title, maze, discount_factor=0.99, 
+        theta=0.001, max_iterations=100, policy_eval_iterations=20):
         """
         Initialize the MDP Policy Iteration solver.
 
@@ -345,24 +368,37 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
     def get_reward(self, state, next_state):
         """
-        Define rewards for transitions.
+        Enhanced reward structure with goal-directed gradient.
         
         Args:
-            state: Current state (row, col)
-            next_state: Next state (row, col)
+            state: Current state (x, y)
+            next_state: Next state (x, y)
             
         Returns:
             reward: Reward for this transition
         """
-        # set reward = 100 for reaching the goal
+        # Set high reward for reaching the goal
         if next_state == self.goal:
             return 100
-
-        # set penalty = -100 for hitting a wall
+        
+        # Set penalty for hitting a wall
         if self.is_wall(*next_state):
             return -100
-
-        # set small penalty for each step to encourage shorter paths
+        
+        # Calculate Manhattan distance to goal for gradient reward
+        goal_x, goal_y = self.goal
+        next_x, next_y = next_state
+        curr_x, curr_y = state
+        
+        # Get distances to goal
+        curr_dist = abs(curr_x - goal_x) + abs(curr_y - goal_y)
+        next_dist = abs(next_x - goal_x) + abs(next_y - goal_y)
+        
+        # If next state is closer to goal, give bonus
+        if next_dist < curr_dist:
+            return -0.5  # Small step penalty but better than standard step
+        
+        # Standard step penalty
         return -1
 
     def get_transition_prob(self, state, action, next_state):
@@ -390,7 +426,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
 
     def policy_evaluation(self, policy, states, actions):
         """
-        Evaluate a policy by computing its value function.
+        Evaluate policy with convergence check.
 
         Args:
             policy: Current policy mapping states to actions
@@ -401,31 +437,41 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             values: Dictionary mapping states to their values
         """
         values = {state: 0 for state in states}
-
-        # evaluate policy for specified number of iterations
+        
+        # Set goal state value higher to create gradient
+        values[self.goal] = 100
+        
         for _ in range(self.policy_eval_iterations):
+            delta = 0
             for state in states:
                 self.states_evaluated += 1
-                # skip evaluating if reached goal state
+                
+                # Skip evaluating if reached goal state
                 if state == self.goal:
                     continue
-
+                    
+                old_value = values[state]
                 action = policy[state]
-                # if no action is defined for this state, skip it
+                
+                # If no action is defined for this state, skip it
                 if action is None:
                     continue
-
+                    
                 new_value = 0
-
                 for next_state in states:
                     prob = self.get_transition_prob(state, action, next_state)
-
+                    
                     if prob > 0:
                         reward = self.get_reward(state, next_state)
                         new_value += prob * (reward + self.discount_factor * values[next_state])
-
+                        
                 values[state] = new_value
-
+                delta = max(delta, abs(old_value - new_value))
+                
+            # Check for convergence
+            if delta < self.theta:
+                break
+                
         return values
 
     def policy_improvement(self, values, states, actions):
@@ -486,13 +532,13 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         states = self.get_states()
         actions = self.get_actions()
 
-        # initialize policy randomly
+        # Initialize policy with goal-directed actions
         self.policy = {}
         for state in states:
             if state == self.goal:
                 self.policy[state] = None
             else:
-                # choose a random action that doesn't lead to a wall
+                # Get all valid actions
                 valid_actions = []
                 for action in actions:
                     x, y = state
@@ -500,8 +546,24 @@ class MDPPolicyIterationSolver(MazeSolverBase):
                     next_state = (x + dx, y + dy)
                     if not self.is_wall(*next_state):
                         valid_actions.append(action)
+                        
                 if valid_actions:
-                    self.policy[state] = valid_actions[0]  # just take the first valid action
+                    # Use action that gets closest to goal if possible
+                    goal_x, goal_y = self.goal
+                    best_action = None
+                    min_distance = float('inf')
+                    
+                    for action in valid_actions:
+                        x, y = state
+                        dx, dy = action
+                        next_x, next_y = x + dx, y + dy
+                        dist = abs(next_x - goal_x) + abs(next_y - goal_y)
+                        
+                        if dist < min_distance:
+                            min_distance = dist
+                            best_action = action
+                            
+                    self.policy[state] = best_action
                 else:
                     self.policy[state] = None
 
@@ -538,6 +600,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         """
         path = [self.start]
         current = self.start
+        visited = {self.start}  # Track visited states to prevent loops
 
         max_path_length = self.width * self.height
 
@@ -555,7 +618,13 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             if self.is_wall(*next_state):
                 # this shouldn't happen with a valid policy
                 break
-
+                
+            # Check for loops
+            if next_state in visited:
+                print(f"Warning: Loop detected in path at {next_state}")
+                break
+                
+            visited.add(next_state)
             path.append(next_state)
             current = next_state
 
@@ -610,11 +679,14 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         Returns:
             metrics: Dictionary of performance metrics
         """
+        path = self.extract_path()
+        is_solution_found = len(path) > 1 and path[-1] == self.goal
+        
         return {
-            'path_length': len(self.extract_path()) - 1,  # subtract 1 to get number of steps
+            'path_length': len(path) - 1 if is_solution_found else 0,
             'iterations': self.iterations,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
-            'is_solution_found': bool(self.solution_path)
+            'is_solution_found': is_solution_found
         }
