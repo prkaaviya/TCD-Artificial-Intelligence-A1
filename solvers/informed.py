@@ -18,9 +18,7 @@ class AStarSolver(MazeSolverBase):
         maze (numpy.ndarray): 2D array representing the maze 
         ('#' for walls, '.' for paths, 'S' for start, 'G' for goal).
         """
-        self.maze = maze
-        self.title = title
-        self.height, self.width = maze.shape
+        super().__init__(title, maze)
 
         self.nodes_explored = 0
         self.nodes_available = 0
@@ -151,51 +149,6 @@ class AStarSolver(MazeSolverBase):
             current = parent[current]
             path.insert(0, current)
         return path
-
-    def visualize_solution(self, solution_path, output_file=None):
-        """
-        Visualize the maze solution.
-
-        Args:
-        solution_path (list): List of (x, y) coordinates forming the solution path.
-        output_file (str, optional): Path to save the visualization.
-        """
-        _, ax = plt.subplots(figsize=(8, 8))
-
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.maze[i, j] == '#':  # wall
-                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
-                                        facecolor='black'))
-                elif self.maze[i, j] == 'S':  # start
-                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
-                                        facecolor='green'))
-                    self.nodes_available += 1
-                elif self.maze[i, j] == 'G':  # goal
-                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
-                                        facecolor='red'))
-                    self.nodes_available += 1
-                else:  # path
-                    ax.add_patch(plt.Rectangle((j, self.height-1-i), 1, 1,
-                                        facecolor='white'))
-                    self.nodes_available += 1
-
-        # plot the solution path on top of the maze
-        if solution_path:
-            path_x = [x + 0.5 for x, _ in solution_path]
-            path_y = [self.height-1-y + 0.5 for _, y in solution_path]
-            plt.plot(path_x, path_y, color='blue', linewidth=2, marker='o',
-                    markersize=5, markerfacecolor='yellow')
-
-        plt.title(f'{self.title} ({self.height}, {self.width}) Solution with A*')
-        plt.axis('equal')
-        plt.axis('off')
-
-        if output_file:
-            plt.savefig(output_file, bbox_inches='tight', dpi=300)
-            plt.close()
-        else:
-            plt.show()
 
     def get_performance_metrics(self):
         """

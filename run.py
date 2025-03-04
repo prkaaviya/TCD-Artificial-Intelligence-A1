@@ -52,8 +52,8 @@ def main():
     if len(solver.solution_path) > 1:
         print("Solution found!")
         print("Solution path:", solution)
-        solver.visualize_solution(solution,
-                                    f'{VISUALS_DIR}/{args.title}_{args.algorithm}_solution.png')
+        solver.visualize_solution(solution, args.algorithm,
+                                f'{VISUALS_DIR}/{args.title}_{args.algorithm}_solution.png')
     else:
         print("No solution found.")
 
