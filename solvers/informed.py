@@ -21,7 +21,7 @@ class AStarSolver(MazeSolverBase):
         super().__init__(title, maze)
 
         self.nodes_explored = 0
-        self.nodes_available = 0
+        self.nodes_available = len(list(zip(*np.where(maze == '.'))))
         self.execution_time = None
 
         self.counter = 0

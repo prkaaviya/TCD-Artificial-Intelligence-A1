@@ -21,7 +21,7 @@ class DFSSolver(MazeSolverBase):
         super().__init__(title, maze)
 
         self.nodes_explored = 0
-        self.nodes_available = 0
+        self.nodes_available = len(list(zip(*np.where(maze == '.'))))
         self.execution_time = None
 
         self.start = tuple(zip(*np.where(maze == 'S')))[0]
@@ -117,7 +117,7 @@ class BFSSolver(MazeSolverBase):
         super().__init__(title, maze)
 
         self.nodes_explored = 0
-        self.nodes_available = 0
+        self.nodes_available = len(list(zip(*np.where(maze == '.'))))
         self.execution_time = None
 
         # find start and goal positions

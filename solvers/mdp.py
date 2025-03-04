@@ -18,6 +18,8 @@ class MDPValueIterationSolver(MazeSolverBase):
             max_iterations: Maximum number of iterations to perform
         """
         super().__init__(title, maze)
+        
+        self.nodes_available = len(list(zip(*np.where(maze == '.'))))
 
         self.execution_time = None
 
@@ -254,6 +256,7 @@ class MDPValueIterationSolver(MazeSolverBase):
 
         return {
             'path_length': len(path) if is_solution_found else 0,
+            'nodes_available': self.nodes_available,
             'iterations': self.iterations,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
@@ -278,6 +281,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
             policy_eval_iterations: Number of iterations for policy evaluation step
         """
         super().__init__(title, maze)
+
+        self.nodes_available = len(list(zip(*np.where(maze == '.'))))
 
         self.execution_time = None
 
@@ -602,6 +607,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         
         return {
             'path_length': len(path) if is_solution_found else 0,
+            'nodes_available': self.nodes_available,
             'iterations': self.iterations,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,
