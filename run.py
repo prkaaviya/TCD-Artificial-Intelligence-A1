@@ -49,7 +49,7 @@ def main():
     tracemalloc.stop()
     solver.execution_time = end_time - start_time
 
-    if solution:
+    if len(solver.solution_path) > 1:
         print("Solution found!")
         print("Solution path:", solution)
         solver.visualize_solution(solution,

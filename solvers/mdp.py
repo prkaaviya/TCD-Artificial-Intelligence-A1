@@ -211,6 +211,9 @@ class MDPValueIterationSolver(MazeSolverBase):
         Returns:
             path: List of positions from start to goal
         """
+        print(f"Start position: {self.start}")
+        print(f"Goal position: {self.goal}")
+
         path = [self.start]
         current = self.start
         visited = {self.start}  # Track visited states to prevent loops
@@ -305,8 +308,8 @@ class MDPPolicyIterationSolver(MazeSolverBase):
     """
     Maze solver using MDP Policy Iteration solver.
     """
-    def __init__(self, title, maze, discount_factor=0.99, 
-        theta=0.001, max_iterations=100, policy_eval_iterations=20):
+    def __init__(self, title, maze, discount_factor=0.999,
+        theta=0.0001, max_iterations=500, policy_eval_iterations=50):
         """
         Initialize the MDP Policy Iteration solver.
 
@@ -529,6 +532,9 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         Returns:
             path: List of positions forming the path from start to goal
         """
+        print(f"Start position: {self.start}")
+        print(f"Goal position: {self.goal}")
+
         states = self.get_states()
         actions = self.get_actions()
 
