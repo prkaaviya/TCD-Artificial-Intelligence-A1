@@ -23,7 +23,49 @@ class MazeGenerator:
         # initialize maze with all walls
         self.maze = np.full((self.height, self.width), '#', dtype=str)
 
-    def generate_recursive_backtracker(self):
+    def add_multiple_paths(self, path_density=0.1):
+        """
+        Add multiple paths to the maze by randomly removing walls.
+        
+        Args:
+            path_density: Float between 0 and 1 indicating how many walls to remove
+            (higher values create more paths)
+        """
+        # only consider interior walls, not boundary walls
+        interior_walls = []
+
+        for i in range(2, self.height-2):
+            for j in range(2, self.width-2):
+                if self.maze[i, j] == '#':
+                    # check if removing this wall can connect two path cells
+                    neighbors = [
+                        (i-1, j), (i+1, j),  # vertical neighbors
+                        (i, j-1), (i, j+1)   # horizontal neighbors
+                    ]
+
+                    path_neighbors = sum(1 for ni, nj in neighbors 
+                                        if 0 <= ni < self.height and 0 <= nj < self.width
+                                        and self.maze[ni, nj] in ['.', 'S', 'G'])
+
+                    # if wall has at least two path neighbors, consider removing it
+                    if path_neighbors >= 2:
+                        interior_walls.append((i, j))
+
+        num_walls_to_remove = int(len(interior_walls) * path_density)
+
+        # randomly select walls to remove
+        walls_to_remove = np.random.choice(
+            len(interior_walls),
+            size=min(num_walls_to_remove, len(interior_walls)),
+            replace=False
+        )
+
+        # remove the selected walls
+        for idx in walls_to_remove:
+            i, j = interior_walls[idx]
+            self.maze[i, j] = '.'
+
+    def generate_recursive_backtracker(self, path_density=0.1):
         """
         Generate maze using Recursive Backtracker algorithm with enforced boundary walls.
         """
@@ -76,6 +118,9 @@ class MazeGenerator:
         # set start and end points
         self.maze[1, 1] = 'S'  # start coords
         self.maze[self.height-2, self.width-2] = 'G'  # goal coords
+
+        if path_density > 0:
+            self.add_multiple_paths(path_density)
 
     def visualize(self, output_img, title="Random Maze"):
         """
