@@ -127,6 +127,9 @@ class MDPValueIterationSolver(MazeSolverBase):
         Returns:
             path: List of positions forming the path from start to goal
         """
+        print(f"Start position: {self.start}")
+        print(f"Goal position: {self.goal}")
+
         states = self.get_states()
         actions = self.get_actions()
 
@@ -211,9 +214,6 @@ class MDPValueIterationSolver(MazeSolverBase):
         Returns:
             path: List of positions from start to goal
         """
-        print(f"Start position: {self.start}")
-        print(f"Goal position: {self.goal}")
-
         path = [self.start]
         current = self.start
         visited = {self.start}  # Track visited states to prevent loops
@@ -297,7 +297,7 @@ class MDPValueIterationSolver(MazeSolverBase):
         is_solution_found = len(path) > 1 and path[-1] == self.goal
 
         return {
-            'path_length': len(path) - 1 if is_solution_found else 0,
+            'path_length': len(path) if is_solution_found else 0,
             'iterations': self.iterations,
             'states_evaluated': self.states_evaluated,
             'execution_time': self.execution_time,
@@ -689,7 +689,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
         is_solution_found = len(path) > 1 and path[-1] == self.goal
         
         return {
-            'path_length': len(path) - 1 if is_solution_found else 0,
+            'path_length': len(path) if is_solution_found else 0,
             'iterations': self.iterations,
             'policy_changes': self.policy_changes,
             'states_evaluated': self.states_evaluated,

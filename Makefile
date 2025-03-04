@@ -35,6 +35,14 @@ generate_mazes: dirs
 solve: dirs
 	$(CONDA_RUN) python run.py --title $(MAZE) --algorithm $(ALG)
 
+# Solve a single maze with all algorithm
+.PHONY: solve_one_maze_all_algorithms
+solve_one_maze_all_algorithms: dirs
+	@for alg in $(ALGORITHMS); do \
+		echo "Solving $(MAZE) with $$alg"; \
+		$(CONDA_RUN) python run.py --title $(MAZE) --algorithm $$alg; \
+	done; \
+
 # Solve all mazes with a specific algorithm
 .PHONY: solve_all_mazes
 solve_all_mazes: dirs
@@ -61,8 +69,9 @@ setup:
 .PHONY: default
 default:
 	@echo "Available targets:"
-	@echo "  make generate_maze SIZE=<size> MAZE_NAME=<name>  - Generate a single maze"
-	@echo "  make generate_mazes                              - Generate mazes of different sizes"
-	@echo "  make solve MAZE=<maze_name> ALG=<algorithm>      - Solve a specific maze with an algorithm"
-	@echo "  make solve_all_mazes ALG=<algorithm>             - Solve all mazes with specific algorithm"
-	@echo "  make setup                                       - Install dependencies"
+	@echo "  make generate_maze SIZE=<size> MAZE_NAME=<name>  		- Generate a single maze"
+	@echo "  make generate_mazes                              		- Generate mazes of different sizes"
+	@echo "  make solve MAZE=<maze_name> ALG=<algorithm>      		- Solve a specific maze with an algorithm"
+	@echo "  make solve_one_maze_all_algorithms MAZE=<maze_name>    - Solve specific mazes with all algorithms"
+	@echo "  make solve_all_mazes ALG=<algorithm>             		- Solve all mazes with specific algorithm"
+	@echo "  make setup                                       		- Install dependencies"
