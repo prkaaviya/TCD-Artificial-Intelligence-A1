@@ -1,2 +1,0 @@
-maze_title,maze_algorithm,maze_height,maze_width,path_length,nodes_explored,nodes_available,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
-maze9,A*,9,9,13,13,31,0.00019097328186035156,True,945,2329,0.0009012222290039062,0.0022211074829101562

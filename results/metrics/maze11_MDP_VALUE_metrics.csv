@@ -1,2 +1,0 @@
-maze_title,maze_algorithm,maze_height,maze_width,path_length,nodes_available,iterations,states_evaluated,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
-maze11,MDP_VALUE,11,11,25,49,21,1071,0.27774691581726074,True,8899,11693,0.008486747741699219,0.011151313781738281

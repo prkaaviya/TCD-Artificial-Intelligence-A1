@@ -1,2 +1,0 @@
-maze_title,maze_algorithm,maze_height,maze_width,path_length,nodes_explored,nodes_available,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
-maze25,BFS,25,25,73,307,305,0.002820730209350586,True,5561,16651,0.005303382873535156,0.01587963104248047
