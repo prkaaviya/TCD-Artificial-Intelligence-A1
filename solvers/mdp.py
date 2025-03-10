@@ -267,7 +267,7 @@ class MDPPolicyIterationSolver(MazeSolverBase):
     """
     Maze solver using MDP Policy Iteration solver.
     """
-    def __init__(self, title, maze, discount_factor=0.999,
+    def __init__(self, title, maze, discount_factor=0.9,
         theta=0.0001, max_iterations=500, policy_eval_iterations=50):
         """
         Initialize the MDP Policy Iteration solver.
