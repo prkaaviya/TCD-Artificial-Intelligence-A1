@@ -69,9 +69,6 @@ class DFSSolver(MazeSolverBase):
         while stack:
             current_x, current_y, path = stack.pop()
 
-            if self.visited[current_y, current_x]:
-                continue
-
             self.visited[current_y, current_x] = True
             self.nodes_explored += 1
 
@@ -85,6 +82,7 @@ class DFSSolver(MazeSolverBase):
                 next_x, next_y = current_x + dx, current_y + dy
 
                 if self.is_valid_move(next_x, next_y):
+                    self.visited[next_y, next_x] = True 
                     stack.append((next_x, next_y, current_path))
 
         # return empty array when no solution found

@@ -57,7 +57,7 @@ class MazeSolverBase(ABC):
             plt.plot(path_x, path_y, color='blue', linewidth=2, marker='o',
                     markersize=5, markerfacecolor='yellow')
 
-        # Get algorithm name from class name if not provided
+        # get algorithm name from class name if not provided
         if algorithm_name is None:
             algorithm_name = self.__class__.__name__.replace("Solver", "")
 
