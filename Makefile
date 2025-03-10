@@ -9,7 +9,7 @@ RESULTS_DIR = results
 METRICS_DIR = $(RESULTS_DIR)/metrics
 VISUALS_DIR = $(RESULTS_DIR)/visuals
 
-MAZE_SIZES = 7 9 15 17 21 25 31 45 67 101
+MAZE_SIZES = 7 11 15 19 21 25 31 45 59 67 83 101
 
 ALGORITHMS = DFS BFS A* MDP_VALUE MDP_POLICY
 
@@ -27,7 +27,7 @@ generate_maze: dirs
 generate_mazes: dirs
 	@for size in $(MAZE_SIZES); do \
 		echo "Generating maze with size $${size}x$${size}"; \
-		$(CONDA_RUN) python  gen_maze.py --width $$size --height $$size --text maze_$$size --image maze_$$size; \
+		$(CONDA_RUN) python  gen_maze.py --width $$size --height $$size --text maze$$size --image maze$$size; \
 	done
 
 # Solve a single maze with a specific algorithm

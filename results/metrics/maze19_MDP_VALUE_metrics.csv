@@ -1,2 +1,2 @@
-maze_title,maze_algorithm,maze_height,maze_width,path_length,iterations,states_evaluated,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
-maze19,MDP_VALUE,19,19,81,57,9177,6.990731954574585,True,30757,42109,0.02933216094970703,0.04015827178955078
+maze_title,maze_algorithm,maze_height,maze_width,path_length,nodes_available,iterations,states_evaluated,execution_time,is_solution_found,current_memory,peak_memory,current_memory_mb,peak_memory_mb
+maze19,MDP_VALUE,19,19,49,169,41,7011,5.493643045425415,True,28517,32367,0.02719593048095703,0.030867576599121094
